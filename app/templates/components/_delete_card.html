@@ -1,0 +1,28 @@
+<div class="mx-auto w-full max-w-xl">
+  <div class="card-gradient shadow-card">
+    <div class="rounded-[23px] bg-ink-900/90 p-5 backdrop-blur-xl sm:p-7">
+      <span class="icon-tile icon-tile-rose h-12 w-12">
+        <svg class="h-5 w-5" aria-hidden="true" focusable="false"><use href="#i-alert"></use></svg>
+      </span>
+
+      <h1 class="mt-4 text-xl font-semibold tracking-tight text-slate-50">{{ title }}</h1>
+      <p class="mt-2 text-sm leading-relaxed text-slate-400">Esta ação é permanente e não pode ser desfeita.</p>
+
+      <div class="mt-5 rounded-xl border border-rose-500/20 bg-rose-500/[0.06] p-4">
+        <p class="text-sm text-slate-300">
+          Você está prestes a excluir {{ object_label }} <strong class="text-slate-50">{{ object_name }}</strong>.
+        </p>
+        {% if warning %}<p class="mt-1 text-xs text-slate-400">{{ warning }}</p>{% endif %}
+      </div>
+
+      <form method="post" class="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
+        {% csrf_token %}
+        <a href="{{ cancel_url }}" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-danger" data-submit data-submit-busy="Excluindo…">
+          <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-trash"></use></svg>
+          <span data-submit-label>Excluir definitivamente</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

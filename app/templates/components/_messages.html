@@ -1,0 +1,21 @@
+{% if messages %}
+<div class="mx-auto w-full max-w-[1600px] px-4 pt-4 sm:px-6 lg:px-8" aria-live="polite">
+  <div class="space-y-2">
+    {% for message in messages %}
+      <div role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}"
+           class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}">
+        <span class="icon-tile h-8 w-8 {% if message.tags == 'error' %}icon-tile-rose{% elif message.tags == 'success' %}icon-tile-brand{% elif message.tags == 'warning' %}icon-tile-amber{% else %}icon-tile-aqua{% endif %}">
+          {% if message.tags == 'success' %}
+            <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-check-circle"></use></svg>
+          {% elif message.tags == 'error' or message.tags == 'warning' %}
+            <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-alert"></use></svg>
+          {% else %}
+            <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-info"></use></svg>
+          {% endif %}
+        </span>
+        <p class="min-w-0 pt-0.5">{{ message }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}

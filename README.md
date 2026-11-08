@@ -10,7 +10,7 @@ read -rsp 'cole a nova chave: ' CONTEXT7_API_KEY &&
 
 # Sistema de Gestão de Estoque (SGE)
 
-Bem-vindo ao Sistema de Gestão de Estoque (SGE), um projeto desenvolvido em Django e Bootstrap 5 para facilitar o gerenciamento de estoque. Este README fornece informações essenciais sobre como configurar e executar o projeto em seu ambiente local.
+Bem-vindo ao Sistema de Gestão de Estoque (SGE), um projeto desenvolvido em Django e TailwindCSS para facilitar o gerenciamento de estoque. Este README fornece informações essenciais sobre como configurar e executar o projeto em seu ambiente local.
 
 ## Requisitos
 
@@ -43,3 +43,14 @@ python manage.py runserver
 
 Após isso, o sistema estará pronto para ser acessado em:
 [http://localhost:8000](http://localhost:8000)
+
+## Front-end (TailwindCSS)
+
+O CSS é compilado localmente a partir de `app/static/css/tailwind-input.css` e servido em `app/static/css/sge.css`. Para reconstruir após alterar templates ou classes:
+
+```bash
+npm install
+npm run build:css
+```
+
+Em produção, rode `python manage.py collectstatic` (o WhiteNoise serve os arquivos estáticos).

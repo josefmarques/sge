@@ -1,0 +1,12 @@
+<div class="min-w-0">
+  {% if back_url %}
+    <a href="{{ back_url }}" class="mb-3 inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-slate-200">
+      <svg class="h-3.5 w-3.5" aria-hidden="true" focusable="false"><use href="#i-arrow-left"></use></svg>
+      {{ back_label|default:"Voltar" }}
+    </a>
+  {% endif %}
+
+  {% if eyebrow %}<p class="eyebrow">{{ eyebrow }}</p>{% endif %}
+  <h1 class="page-title {% if eyebrow %}mt-1{% endif %} break-words">{{ title }}</h1>
+  {% if subtitle %}<p class="page-subtitle">{{ subtitle }}</p>{% endif %}
+</div>

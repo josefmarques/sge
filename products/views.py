@@ -26,9 +26,9 @@ class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             queryset = queryset.filter(title__icontains=title)
         if serie_number:
             queryset = queryset.filter(serie_number__icontains=serie_number)
-        if category:
+        if category and str(category).isdigit():
             queryset = queryset.filter(category_id=category)
-        if brand:
+        if brand and str(brand).isdigit():
             queryset = queryset.filter(brand__id=brand)
 
         return queryset
@@ -39,6 +39,12 @@ class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         context['sales_metrics'] = metrics.get_sales_metrics()
         context['categories'] = Category.objects.all()
         context['brands'] = Brand.objects.all()
+        context['filters_active'] = bool(
+            self.request.GET.get('title')
+            or self.request.GET.get('serie_number')
+            or str(self.request.GET.get('category', '')).isdigit()
+            or str(self.request.GET.get('brand', '')).isdigit()
+        )
         return context
 
 

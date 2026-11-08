@@ -1,49 +1,54 @@
 {% if page_obj.has_other_pages %}
-  <nav>
-    <ul class="pagination justify-content-center">
-      {% if page_obj.has_previous %}
-        <li class="page-item">
-          <a class="page-link" href="?page=1">
-            Primeira
-          </a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
-            Anterior
-          </a>
-        </li>
-      {% endif %}
+<nav class="flex flex-col items-center justify-between gap-3 sm:flex-row" aria-label="Paginação">
+  <p class="text-xs text-slate-400">
+    Página <span class="font-medium text-slate-200">{{ page_obj.number }}</span> de {{ page_obj.paginator.num_pages }}
+    <span class="hidden sm:inline">· {{ page_obj.paginator.count }} registro{{ page_obj.paginator.count|pluralize }}</span>
+  </p>
 
-      {% for page_number in page_obj.paginator.page_range %}
-        {% if page_number <= page_obj.number|add:3 and page_number >= page_obj.number|add:-3 %}
-          {% if page_obj.number == page_number %}
-            <li class="page-item active">
-              <a class="page-link" href="?page={{ page_number }}">
-                {{ page_number }}
-              </a>
-            </li>
-          {% else %}
-            <li class="page-item">
-              <a class="page-link" href="?page={{ page_number }}">
-                {{ page_number }}
-              </a>
-            </li>
-          {% endif %}
+  <ul class="flex flex-wrap items-center justify-center gap-1">
+    {% if page_obj.has_previous %}
+      <li>
+        <a href="?page=1" data-page-link data-page="1" class="page-btn" aria-label="Primeira página">
+          <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-chevron-left"></use></svg>
+          <svg class="-ml-1.5 h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-chevron-left"></use></svg>
+        </a>
+      </li>
+      <li>
+        <a href="?page={{ page_obj.previous_page_number }}" data-page-link data-page="{{ page_obj.previous_page_number }}" class="page-btn">
+          <svg class="h-4 w-4 sm:hidden" aria-hidden="true" focusable="false"><use href="#i-chevron-left"></use></svg>
+          <span class="hidden sm:inline">Anterior</span>
+        </a>
+      </li>
+    {% endif %}
+
+    {% for page_number in page_obj.paginator.page_range %}
+      {% if page_number <= page_obj.number|add:3 and page_number >= page_obj.number|add:-3 %}
+        {% if page_obj.number == page_number %}
+          <li>
+            <span class="page-btn page-btn-active" aria-current="page">{{ page_number }}</span>
+          </li>
+        {% else %}
+          <li>
+            <a href="?page={{ page_number }}" data-page-link data-page="{{ page_number }}" class="page-btn">{{ page_number }}</a>
+          </li>
         {% endif %}
-      {% endfor %}
-
-      {% if page_obj.has_next %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ page_obj.next_page_number }}">
-            Próxima
-          </a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
-            Última
-          </a>
-        </li>
       {% endif %}
-    </ul>
-  </nav>
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <li>
+        <a href="?page={{ page_obj.next_page_number }}" data-page-link data-page="{{ page_obj.next_page_number }}" class="page-btn">
+          <span class="hidden sm:inline">Próxima</span>
+          <svg class="h-4 w-4 sm:hidden" aria-hidden="true" focusable="false"><use href="#i-chevron-right"></use></svg>
+        </a>
+      </li>
+      <li>
+        <a href="?page={{ page_obj.paginator.num_pages }}" data-page-link data-page="{{ page_obj.paginator.num_pages }}" class="page-btn" aria-label="Última página">
+          <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-chevron-right"></use></svg>
+          <svg class="-ml-1.5 h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-chevron-right"></use></svg>
+        </a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
 {% endif %}

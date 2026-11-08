@@ -1,18 +1,29 @@
 {% extends 'base.html' %}
 
-{% block content %}
-  <div class="container mt-4">
-    <h3 class="display-4">Cadastrar Produto</h3>
+{% block title %}Novo produto · SGE{% endblock %}
+{% block breadcrumb %}Catálogo / Produtos / Novo{% endblock %}
+{% block topbar_title %}Novo produto{% endblock %}
 
-    <div class="card">
-      <div class="card-body">
-        <form method="post">
-          {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit" class="btn btn-primary">Salvar Produto</button>
-        </form>
-      </div>
+{% block content %}
+{% url 'product_list' as product_list_url %}
+
+<div class="mx-auto w-full max-w-3xl space-y-5">
+  {% include 'components/_page_header.html' with back_url=product_list_url back_label="Voltar para produtos" eyebrow="Catálogo" title="Cadastrar produto" subtitle="Preencha os dados abaixo. Campos com * são obrigatórios." %}
+
+  <form method="post" novalidate class="surface p-5 sm:p-6">
+    {% csrf_token %}
+
+    <div class="form-grid">
+      {% include 'components/_form_fields.html' %}
     </div>
-    <a href="{% url 'product_list' %}" class="btn btn-secondary mt-3">Cancelar e Voltar para a Lista de Produtos</a>
-  </div>
+
+    <div class="mt-6 flex flex-col-reverse gap-2 border-t border-white/[0.06] pt-5 sm:flex-row sm:items-center sm:justify-between">
+      <a href="{{ product_list_url }}" class="btn btn-ghost">Cancelar</a>
+      <button type="submit" class="btn btn-primary" data-submit data-submit-busy="Salvando…">
+        <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-check"></use></svg>
+        <span data-submit-label>Salvar produto</span>
+      </button>
+    </div>
+  </form>
+</div>
 {% endblock %}

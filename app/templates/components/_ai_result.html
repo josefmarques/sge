@@ -1,15 +1,20 @@
-<div class="accordion" id="accordionExample">
-  <div class="accordion-item">
-    <h2 class="accordion-header">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo"
-        aria-expanded="false" aria-controls="collapseTwo">
-        SGE Agent
-      </button>
-    </h2>
-    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-      <div class="accordion-body">
-        {{ ai_result|linebreaks }}
-      </div>
-    </div>
+<details class="surface overflow-hidden">
+  <summary class="flex cursor-pointer items-center gap-3 px-5 py-4 transition-colors hover:bg-white/[0.03] sm:px-6">
+    <span class="icon-tile icon-tile-iris">
+      <svg class="h-5 w-5" aria-hidden="true" focusable="false"><use href="#i-sparkles"></use></svg>
+    </span>
+    <span class="min-w-0 flex-1">
+      <span class="block text-sm font-semibold text-slate-100">SGE Agent</span>
+      <span class="block text-xs text-slate-400">Insights e recomendações gerados por IA</span>
+    </span>
+    <span class="badge badge-iris hidden sm:inline-flex">IA</span>
+    <svg class="chevron-rotate h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200" aria-hidden="true" focusable="false"><use href="#i-chevron-down"></use></svg>
+  </summary>
+  <div class="border-t border-white/[0.06] px-5 py-5 sm:px-6">
+    {% if ai_result %}
+      <div class="ai-prose">{{ ai_result|linebreaks }}</div>
+    {% else %}
+      <p class="text-sm leading-relaxed text-slate-400">Nenhuma análise disponível no momento. Assim que o SGE Agent gerar um resultado, ele aparecerá aqui.</p>
+    {% endif %}
   </div>
-</div>
+</details>

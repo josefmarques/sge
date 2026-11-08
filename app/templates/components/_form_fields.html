@@ -1,0 +1,38 @@
+{% if form.non_field_errors %}
+  <div class="field field--full" role="alert">
+    <div class="alert alert-error">
+      <svg class="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" focusable="false"><use href="#i-alert"></use></svg>
+      <ul class="space-y-1">
+        {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endif %}
+
+{% for field in form %}
+  {% if field.is_hidden %}
+    {{ field }}
+  {% else %}
+    <div class="field">
+      <label for="{{ field.id_for_label }}" class="label">
+        <span>{{ field.label }}</span>
+        {% if field.field.required %}
+          <span class="text-rose-300" aria-hidden="true">*</span>
+          <span class="sr-only">(obrigatório)</span>
+        {% endif %}
+      </label>
+
+      {{ field }}
+
+      {% if field.help_text %}
+        <p id="{{ field.id_for_label }}-help" class="help">{{ field.help_text }}</p>
+      {% endif %}
+
+      {% if field.errors %}
+        <ul id="{{ field.id_for_label }}-error" class="field-error" role="alert">
+          {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endfor %}

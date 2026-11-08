@@ -1,18 +1,29 @@
 {% extends 'base.html' %}
 
-{% block content %}
-  <div class="container mt-4">
-    <h3 class="display-4">Cadastrar Entrada</h3>
+{% block title %}Nova entrada · SGE{% endblock %}
+{% block breadcrumb %}Movimentações / Entradas / Nova{% endblock %}
+{% block topbar_title %}Nova entrada{% endblock %}
 
-    <div class="card">
-      <div class="card-body">
-        <form method="post">
-          {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit" class="btn btn-primary">Registrar Entrada</button>
-        </form>
-      </div>
+{% block content %}
+{% url 'inflow_list' as inflow_list_url %}
+
+<div class="mx-auto w-full max-w-3xl space-y-5">
+  {% include 'components/_page_header.html' with back_url=inflow_list_url back_label="Voltar para entradas" eyebrow="Movimentações" title="Registrar entrada" subtitle="Selecione o fornecedor e o produto para dar entrada no estoque." %}
+
+  <form method="post" novalidate class="surface p-5 sm:p-6">
+    {% csrf_token %}
+
+    <div class="form-grid">
+      {% include 'components/_form_fields.html' %}
     </div>
-    <a href="{% url 'inflow_list' %}" class="btn btn-secondary mt-3">Cancelar e Voltar para a Lista de Entradas</a>
-  </div>
+
+    <div class="mt-6 flex flex-col-reverse gap-2 border-t border-white/[0.06] pt-5 sm:flex-row sm:items-center sm:justify-between">
+      <a href="{{ inflow_list_url }}" class="btn btn-ghost">Cancelar</a>
+      <button type="submit" class="btn btn-inflow" data-submit data-submit-busy="Registrando…">
+        <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-check"></use></svg>
+        <span data-submit-label>Registrar entrada</span>
+      </button>
+    </div>
+  </form>
+</div>
 {% endblock %}

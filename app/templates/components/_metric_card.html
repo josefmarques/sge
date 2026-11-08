@@ -1,0 +1,14 @@
+<article class="kpi kpi-{{ tone|default:'brand' }}">
+  <div class="relative z-10 flex items-start justify-between gap-3">
+    <div class="min-w-0">
+      <p class="kpi-label">{{ label }}</p>
+      <p class="kpi-value">
+        {% if prefix %}<span class="mr-1 align-baseline text-sm font-medium text-slate-400">{{ prefix }}</span>{% endif %}{{ value }}
+      </p>
+      {% if hint %}<p class="mt-1 text-xs text-slate-400">{{ hint }}</p>{% endif %}
+    </div>
+    <span class="icon-tile icon-tile-{{ tone|default:'brand' }}">
+      <svg class="h-5 w-5" aria-hidden="true" focusable="false"><use href="#i-{{ icon|default:'box' }}"></use></svg>
+    </span>
+  </div>
+</article>

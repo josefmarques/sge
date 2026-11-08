@@ -1,18 +1,74 @@
 {% extends 'base.html' %}
 
+{% block title %}Entrada #{{ object.id }} · SGE{% endblock %}
+{% block breadcrumb %}Movimentações / Entradas / Detalhes{% endblock %}
+{% block topbar_title %}Entrada #{{ object.id }}{% endblock %}
+
 {% block content %}
-  <div class="container mt-4">
-    <h3 class="display-4">Detalhes da Entrada</h3>
+{% url 'inflow_list' as inflow_list_url %}
 
-    <div class="card">
-      <div class="card-body">
-        <h3 class="card-title">{{ object.product }}</h3>
-        <p class="card-text">Fornecedor: <strong>{{ object.supplier }}</strong></p>
-        <p class="card-text">Quantidade: <strong>{{ object.quantity }}</strong></p>
-        <p class="card-text">{{ object.description }}</p>
-      </div>
+<div class="mx-auto w-full max-w-4xl space-y-5">
+  <header class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    {% include 'components/_page_header.html' with back_url=inflow_list_url back_label="Voltar para entradas" eyebrow="Movimentações" title=object.product subtitle="Entrada registrada no estoque." %}
+
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="badge badge-brand">
+        <svg class="h-3 w-3" aria-hidden="true" focusable="false"><use href="#i-inflow"></use></svg>
+        Entrada
+      </span>
+      {% if perms.products.view_product %}
+        <a href="{% url 'product_detail' object.product.id %}" class="btn btn-secondary btn-sm">Ver produto</a>
+      {% endif %}
     </div>
+  </header>
 
-    <a href="{% url 'inflow_list' %}" class="btn btn-secondary mt-3">Voltar para a Lista de Entradas</a>
+  <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_16rem]">
+    <section class="surface p-5 sm:p-6">
+      <h2 class="section-title">Informações da entrada</h2>
+      <dl class="mt-4 grid gap-4 sm:grid-cols-2">
+        <div>
+          <dt class="dt">Fornecedor</dt>
+          <dd class="dd">
+            {% if perms.suppliers.view_supplier %}
+              <a href="{% url 'supplier_detail' object.supplier.id %}" class="underline-offset-4 transition-colors hover:text-brand-300 hover:underline">{{ object.supplier }}</a>
+            {% else %}
+              {{ object.supplier }}
+            {% endif %}
+          </dd>
+        </div>
+
+        <div>
+          <dt class="dt">Quantidade</dt>
+          <dd class="dd tabular-nums">{{ object.quantity }} un.</dd>
+        </div>
+
+        <div>
+          <dt class="dt">Registrado em</dt>
+          <dd class="dd">{{ object.created_at|date:"d/m/Y H:i" }}</dd>
+        </div>
+
+        <div>
+          <dt class="dt">Atualizado em</dt>
+          <dd class="dd">{{ object.updated_at|date:"d/m/Y H:i" }}</dd>
+        </div>
+
+        <div class="sm:col-span-2">
+          <dt class="dt">Descrição</dt>
+          <dd class="dd">{{ object.description|default:"—"|linebreaksbr }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <aside class="surface p-5">
+      <span class="icon-tile icon-tile-brand h-12 w-12">
+        <svg class="h-5 w-5" aria-hidden="true" focusable="false"><use href="#i-inflow"></use></svg>
+      </span>
+      <p class="kpi-label mt-4">Quantidade</p>
+      <p class="mt-1 text-3xl font-semibold tabular-nums text-slate-50">
+        +{{ object.quantity }} <span class="text-sm font-medium text-slate-400">un.</span>
+      </p>
+      <p class="mt-2 text-xs text-slate-400">Entrada de estoque</p>
+    </aside>
   </div>
+</div>
 {% endblock %}

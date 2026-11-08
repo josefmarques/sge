@@ -1,19 +1,26 @@
 {% extends 'base.html' %}
 
+{% block title %}Editar marca · SGE{% endblock %}
+{% block breadcrumb %}Catálogo / Marcas / Editar{% endblock %}
+{% block topbar_title %}Editar marca{% endblock %}
+
 {% block content %}
-  <div class="container mt-4">
-    <h3 class="display-4">Editar Marca</h3>
+{% url 'brand_list' as brand_list_url %}
 
-    <div class="card">
-      <div class="card-body">
-        <form method="post" class="form">
-          {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit" class="btn btn-primary">Salvar Marca</button>
-        </form>
-      </div>
+<div class="mx-auto w-full max-w-xl space-y-5">
+  {% include 'components/_page_header.html' with back_url=brand_list_url back_label="Voltar para marcas" eyebrow="Catálogo" title="Editar marca" subtitle="Atualize os dados da marca selecionada." %}
+
+  <form method="post" novalidate class="surface p-5 sm:p-6">
+    {% csrf_token %}
+    <div class="space-y-5">{% include 'components/_form_fields.html' %}</div>
+
+    <div class="mt-6 flex flex-col-reverse gap-2 border-t border-white/[0.06] pt-5 sm:flex-row sm:items-center sm:justify-between">
+      <a href="{{ brand_list_url }}" class="btn btn-ghost">Cancelar</a>
+      <button type="submit" class="btn btn-primary" data-submit data-submit-busy="Salvando…">
+        <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-check"></use></svg>
+        <span data-submit-label>Salvar alterações</span>
+      </button>
     </div>
-
-    <a href="{% url 'brand_list' %}" class="btn btn-secondary mt-3">Cancelar e Voltar para a Lista de Marcas</a>
-  </div>
+  </form>
+</div>
 {% endblock %}

@@ -1,151 +1,332 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}
-    SGE - Home
-{% endblock %}
+{% block title %}Dashboard · SGE{% endblock %}
+{% block breadcrumb %}Visão geral{% endblock %}
+{% block topbar_title %}Dashboard{% endblock %}
 
 {% block content %}
+<div class="space-y-6">
+
+  <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    {% include 'components/_page_header.html' with eyebrow="Visão geral" title="Painel de controle" subtitle="Resumo do estoque e das movimentações recentes." %}
+    <div class="flex flex-wrap items-center gap-2">
+      {% if perms.products.add_product %}
+        <a href="{% url 'product_create' %}" class="btn btn-secondary w-full sm:w-auto">
+          <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-plus"></use></svg>
+          <span>Novo produto</span>
+        </a>
+      {% endif %}
+    </div>
+  </header>
+
+  {% if perms.products.view_product and perms.inflows.view_inflow %}
+    <section aria-label="Indicadores de estoque">
+      {% include 'components/_product_metrics.html' %}
+    </section>
+  {% endif %}
+
+  {% if perms.outflows.view_outflow %}
+    <section aria-label="Indicadores de vendas">
+      {% include 'components/_sales_metrics.html' %}
+    </section>
+  {% endif %}
 
   {% include 'components/_ai_result.html' %}
 
-  {% if perms.products.view_product and perms.inflows.view_inflow %}
-    {% include 'components/_product_metrics.html' %}
-  {% endif %}
-
   {% if perms.outflows.view_outflow %}
-    {% include 'components/_sales_metrics.html' %}
-  {% endif %}
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  {% if perms.outflows.view_outflow %}
-    <div class="row mt-4 justify-content-center">
-      <div class="col-md-6 text-center">
-        <h5 class="text-center mb-3">Valor de vendas (Últimos 7 Dias)</h5>
-        <canvas id="dailySalesChart"></canvas>
+    <section aria-labelledby="sales-charts-title" class="space-y-4">
+      <div class="flex items-center justify-between gap-3">
+        <h2 id="sales-charts-title" class="text-sm font-semibold text-slate-200">Desempenho de vendas</h2>
+        <span class="badge badge-slate">Últimos 7 dias</span>
       </div>
-      <div class="col-md-6 text-center">
-        <h5 class="text-center mb-3">Quantidade de Vendas Diárias</h5>
-        <canvas id="dailySalesQuantityChart"></canvas>
+
+      <div class="grid gap-4 xl:grid-cols-2">
+        <article class="surface min-w-0 p-5 sm:p-6">
+          <header class="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h3 class="section-title">Valor de vendas</h3>
+              <p class="mt-1 text-xs text-slate-400">Receita diária no período</p>
+            </div>
+            <span class="badge badge-brand">R$</span>
+          </header>
+          <div class="chart-box">
+            <canvas id="dailySalesChart" role="img" aria-label="Gráfico de linha com o valor de vendas dos últimos 7 dias">Gráfico de valor de vendas dos últimos 7 dias.</canvas>
+          </div>
+        </article>
+
+        <article class="surface min-w-0 p-5 sm:p-6">
+          <header class="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h3 class="section-title">Quantidade de vendas</h3>
+              <p class="mt-1 text-xs text-slate-400">Número de saídas por dia</p>
+            </div>
+            <span class="badge badge-aqua">Un.</span>
+          </header>
+          <div class="chart-box">
+            <canvas id="dailySalesQuantityChart" role="img" aria-label="Gráfico de barras com a quantidade de vendas diárias dos últimos 7 dias">Gráfico de quantidade de vendas diárias.</canvas>
+          </div>
+        </article>
       </div>
-      <script>
-        document.addEventListener("DOMContentLoaded", function() {
-          var dailySalesData = JSON.parse('{{ daily_sales_data|safe }}');
-          var dailySalesQuantityData = JSON.parse('{{ daily_sales_quantity_data|safe }}');
-    
-          var ctxDailySales = document.getElementById('dailySalesChart').getContext('2d');
-          var dailySalesChart = new Chart(ctxDailySales, {
-            type: 'line',
-            data: {
-              labels: dailySalesData.dates,
-              datasets: [{
-                label: 'Valor em vendas',
-                data: dailySalesData.values,
-                fill: false,
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 2,
-                tension: 0.5
-              }]
-            },
-            options: {
-              scales: {
-                y: {
-                  beginAtZero: true
-                }
-              }
-            }
-          });
-    
-          var ctxDailySalesQuantity = document.getElementById('dailySalesQuantityChart').getContext('2d');
-          var dailySalesQuantityChart = new Chart(ctxDailySalesQuantity, {
-            type: 'bar',
-            data: {
-              labels: dailySalesQuantityData.dates,
-              datasets: [{
-                label: 'Quantidade de Vendas',
-                data: dailySalesQuantityData.values,
-                backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-              }]
-            },
-            options: {
-              scales: {
-                y: {
-                  beginAtZero: true
-                }
-              }
-            }
-          });
-        });
-      </script>
-    </div>
+    </section>
   {% endif %}
 
   {% if perms.products.view_product %}
-    <div class="row mt-5 justify-content-center">
-      <div class="col-md-6 text-center">
-        {% if product_count_by_category != '{}' %}
-          <h5 class="mb-3">Produtos por Categoria</h5>
-          <div class="mb-4"></div>
-          <div class="embed-responsive embed-responsive-1by1" style="width: 400px; display: inline-block;">
-            <canvas id="productByCategoryChart" class="embed-responsive-item"></canvas>
-          </div>
-        {% endif %}
+    <section aria-labelledby="catalog-charts-title" class="space-y-4">
+      <div class="flex items-center justify-between gap-3">
+        <h2 id="catalog-charts-title" class="text-sm font-semibold text-slate-200">Distribuição do catálogo</h2>
+        <span class="badge badge-slate">Produtos</span>
       </div>
-      <div class="col-md-6 text-center">
-        {% if product_count_by_category != '{}' %}
-          <h5 class="mb-3">Produtos por Marca</h5>
-          <div class="mb-4"></div>
-          <div style="width: 400px; display: inline-block;">
-            <canvas id="productByBrandChart" class="embed-responsive-item"></canvas>
-          </div>
-        {% endif %}
+
+      <div class="grid gap-4 xl:grid-cols-2">
+        <article class="surface min-w-0 p-5 sm:p-6">
+          <header class="mb-4">
+            <h3 class="section-title">Produtos por categoria</h3>
+            <p class="mt-1 text-xs text-slate-400">Participação de cada categoria no catálogo</p>
+          </header>
+
+          {% if product_count_by_category and product_count_by_category != '{}' %}
+            <div class="chart-box-doughnut" data-chart-wrap>
+              <canvas id="productByCategoryChart" role="img" aria-label="Gráfico de rosca com a distribuição de produtos por categoria">Distribuição de produtos por categoria.</canvas>
+              <div class="absolute inset-0 hidden" data-chart-empty>
+                {% include 'components/_empty_state.html' with title="Sem dados de categorias" description="Cadastre produtos e categorias para ver a distribuição." icon="tags" %}
+              </div>
+            </div>
+          {% else %}
+            {% include 'components/_empty_state.html' with title="Sem dados de categorias" description="Cadastre produtos e categorias para ver a distribuição." icon="tags" %}
+          {% endif %}
+        </article>
+
+        <article class="surface min-w-0 p-5 sm:p-6">
+          <header class="mb-4">
+            <h3 class="section-title">Produtos por marca</h3>
+            <p class="mt-1 text-xs text-slate-400">Participação de cada marca no catálogo</p>
+          </header>
+
+          {% if product_count_by_brand and product_count_by_brand != '{}' %}
+            <div class="chart-box-doughnut" data-chart-wrap>
+              <canvas id="productByBrandChart" role="img" aria-label="Gráfico de rosca com a distribuição de produtos por marca">Distribuição de produtos por marca.</canvas>
+              <div class="absolute inset-0 hidden" data-chart-empty>
+                {% include 'components/_empty_state.html' with title="Sem dados de marcas" description="Cadastre produtos e marcas para ver a distribuição." icon="shop" %}
+              </div>
+            </div>
+          {% else %}
+            {% include 'components/_empty_state.html' with title="Sem dados de marcas" description="Cadastre produtos e marcas para ver a distribuição." icon="shop" %}
+          {% endif %}
+        </article>
       </div>
-      <script>
-        document.addEventListener("DOMContentLoaded", function() {  
-          var productCountByCategory = JSON.parse('{{ product_count_by_category|safe }}');
-          var productCountByBrand = JSON.parse('{{ product_count_by_brand|safe }}');
-    
-          var ctxCategory = document.getElementById('productByCategoryChart').getContext('2d');
-          var productByCategoryChart = new Chart(ctxCategory, {
-            type: 'doughnut',
-            data: {
-              labels: Object.keys(productCountByCategory),
-              datasets: [{
-                data: Object.values(productCountByCategory),
-                borderWidth: 1
-              }]
-            },
-            options: {
-              plugins: {
-                legend: {
-                  display: false
-                },
-              }
-            }
-          });
-    
-          var ctxBrand = document.getElementById('productByBrandChart').getContext('2d');
-          var productByBrandChart = new Chart(ctxBrand, {
-            type: 'doughnut',
-            data: {
-              labels: Object.keys(productCountByBrand),
-              datasets: [{
-                data: Object.values(productCountByBrand),
-                borderWidth: 1
-              }]
-            },
-            options: {
-              plugins: {
-                legend: {
-                  display: false
-                },
-              }
-            }
-          });
-        });
-      </script>
-    </div>
+    </section>
   {% endif %}
+
+  {{ daily_sales_data|json_script:"daily-sales-data" }}
+  {{ daily_sales_quantity_data|json_script:"daily-sales-quantity-data" }}
+  {{ product_count_by_category|json_script:"product-by-category" }}
+  {{ product_count_by_brand|json_script:"product-by-brand" }}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/chart.umd.min.js' %}" defer></script>
+<script>
+(function () {
+  'use strict';
+
+  function readJSON(id) {
+    var el = document.getElementById(id);
+    if (!el) return null;
+    try {
+      var first = JSON.parse(el.textContent);
+      return typeof first === 'string' ? JSON.parse(first) : first;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!window.Chart) return;
+
+    Chart.defaults.font.family = "'Inter', ui-sans-serif, system-ui, sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.borderColor = 'rgba(148,163,184,.12)';
+
+    var sales = readJSON('daily-sales-data');
+    var qty = readJSON('daily-sales-quantity-data');
+    var byCategory = readJSON('product-by-category');
+    var byBrand = readJSON('product-by-brand');
+
+    var money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+    var shortDate = function (iso) {
+      var p = String(iso).split('-');
+      return p.length === 3 ? p[2] + '/' + p[1] : iso;
+    };
+
+    function gradient(ctx, area, from, to) {
+      var g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+      g.addColorStop(0, from);
+      g.addColorStop(1, to);
+      return g;
+    }
+
+    var tooltip = {
+      backgroundColor: 'rgba(8,13,23,.96)',
+      borderColor: 'rgba(255,255,255,.08)',
+      borderWidth: 1,
+      titleColor: '#e2e8f0',
+      bodyColor: '#cbd5e1',
+      padding: 12,
+      cornerRadius: 10,
+      displayColors: false
+    };
+
+    var salesCanvas = document.getElementById('dailySalesChart');
+    if (salesCanvas && sales && sales.dates && sales.dates.length) {
+      new Chart(salesCanvas, {
+        type: 'line',
+        data: {
+          labels: sales.dates.map(shortDate),
+          datasets: [{
+            label: 'Valor em vendas',
+            data: sales.values,
+            borderColor: '#34D399',
+            backgroundColor: function (context) {
+              var area = context.chart.chartArea;
+              if (!area) return 'rgba(52,211,153,.15)';
+              return gradient(context.chart.ctx, area, 'rgba(52,211,153,.35)', 'rgba(52,211,153,0)');
+            },
+            fill: true,
+            tension: .4,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            pointHoverBackgroundColor: '#6EE7B7',
+            pointHoverBorderColor: '#05070D'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: Object.assign({}, tooltip, {
+              callbacks: {
+                label: function (c) { return money.format(c.parsed.y); }
+              }
+            })
+          },
+          scales: {
+            x: { grid: { display: false }, border: { display: false }, ticks: { color: '#64748b' } },
+            y: {
+              beginAtZero: true,
+              border: { display: false },
+              grid: { color: 'rgba(148,163,184,.08)' },
+              ticks: {
+                color: '#64748b',
+                callback: function (v) { return 'R$ ' + v; }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    var qtyCanvas = document.getElementById('dailySalesQuantityChart');
+    if (qtyCanvas && qty && qty.dates && qty.dates.length) {
+      new Chart(qtyCanvas, {
+        type: 'bar',
+        data: {
+          labels: qty.dates.map(shortDate),
+          datasets: [{
+            label: 'Quantidade de vendas',
+            data: qty.values,
+            backgroundColor: function (context) {
+              var area = context.chart.chartArea;
+              if (!area) return 'rgba(34,211,238,.6)';
+              return gradient(context.chart.ctx, area, 'rgba(34,211,238,.85)', 'rgba(99,102,241,.35)');
+            },
+            borderRadius: 8,
+            borderSkipped: false,
+            maxBarThickness: 32
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: tooltip },
+          scales: {
+            x: { grid: { display: false }, border: { display: false }, ticks: { color: '#64748b' } },
+            y: {
+              beginAtZero: true,
+              border: { display: false },
+              grid: { color: 'rgba(148,163,184,.08)' },
+              ticks: { precision: 0, color: '#64748b' }
+            }
+          }
+        }
+      });
+    }
+
+    var palette = ['#34D399', '#22D3EE', '#818CF8', '#F59E0B', '#F43F5E', '#A78BFA', '#2DD4BF', '#60A5FA'];
+
+    function showChartEmpty(canvas) {
+      var wrap = canvas.closest('[data-chart-wrap]');
+      if (!wrap) return;
+      canvas.classList.add('hidden');
+      var empty = wrap.querySelector('[data-chart-empty]');
+      if (empty) empty.classList.remove('hidden');
+    }
+
+    function doughnut(id, data) {
+      var canvas = document.getElementById(id);
+      if (!canvas) return;
+
+      var labels = data ? Object.keys(data) : [];
+      var values = data ? Object.values(data) : [];
+
+      if (!labels.length || values.every(function (v) { return !v; })) {
+        showChartEmpty(canvas);
+        return;
+      }
+
+      new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: labels.map(function (_, i) { return palette[i % palette.length]; }),
+            borderColor: 'rgba(5,7,13,.9)',
+            borderWidth: 2,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#94a3b8',
+                usePointStyle: true,
+                pointStyle: 'circle',
+                boxWidth: 8,
+                boxHeight: 8,
+                padding: 16,
+                font: { size: 11 }
+              }
+            },
+            tooltip: tooltip
+          }
+        }
+      });
+    }
+
+    doughnut('productByCategoryChart', byCategory);
+    doughnut('productByBrandChart', byBrand);
+  });
+})();
+</script>
 {% endblock %}

@@ -1,20 +1,11 @@
 {% extends 'base.html' %}
 
+{% block title %}Excluir produto · SGE{% endblock %}
+{% block breadcrumb %}Catálogo / Produtos / Excluir{% endblock %}
+{% block topbar_title %}Excluir produto{% endblock %}
+
 {% block content %}
-  <div class="container mt-4">
-    <h3 class="display-4">Deletar Produto</h3>
+{% url 'product_list' as cancel_url %}
 
-    <div class="card">
-      <div class="card-body">
-        <p class="card-text">Tem certeza de que deseja excluir o produto <strong>{{ object.title }}</strong>?</p>
-
-        <form method="post">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-danger">Deletar</button>
-        </form>
-        
-        <a href="{% url 'product_list' %}" class="btn btn-secondary mt-3">Cancelar e Voltar para a Lista de Produtos</a>
-      </div>
-    </div>
-  </div>
+{% include 'components/_delete_card.html' with title="Excluir produto" object_label="o produto" object_name=object.title cancel_url=cancel_url warning="Produtos vinculados a entradas ou saídas podem ser protegidos contra exclusão." %}
 {% endblock %}

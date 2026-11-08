@@ -1,22 +1,116 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ object.title }} · SGE{% endblock %}
+{% block breadcrumb %}Catálogo / Produtos / Detalhes{% endblock %}
+{% block topbar_title %}{{ object.title }}{% endblock %}
+
 {% block content %}
-  <div class="container mt-4">
-    <h3 class="display-4">Detalhes do Produto</h3>
+{% url 'product_list' as product_list_url %}
 
-    <div class="card">
-      <div class="card-body">
-        <h3 class="card-title">{{ object.title }}</h3>
-        <p class="card-text">Categoria: {{ object.category }}</p>
-        <p class="card-text">Marca: {{ object.brand }}</p>
-        <p class="card-text">{{ object.description }}</p>
-        <p class="card-text">Número de Série: <strong>{{ object.serie_number }}</strong></p>
-        <p class="card-text">Preço de Custo: <strong>R$ {{ object.cost_price }}</strong></p>
-        <p class="card-text">Preço de Venda: <strong>R$ {{ object.selling_price }}</strong></p>
-        <p class="card-text">Quantidade em Estoque: <strong>{{ object.quantity }}</strong></p>
-      </div>
+<div class="mx-auto w-full max-w-5xl space-y-5">
+  <header class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    {% include 'components/_page_header.html' with back_url=product_list_url back_label="Voltar para produtos" eyebrow="Catálogo" title=object.title subtitle=object.description|default:"Sem descrição cadastrada." %}
+
+    <div class="flex flex-wrap items-center gap-2">
+      {% if perms.products.change_product %}
+        <a href="{% url 'product_update' object.id %}" class="btn btn-secondary">
+          <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-pencil"></use></svg>
+          <span>Editar</span>
+        </a>
+      {% endif %}
+      {% if perms.products.delete_product %}
+        <a href="{% url 'product_delete' object.id %}" class="btn btn-danger-soft">
+          <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-trash"></use></svg>
+          <span>Excluir</span>
+        </a>
+      {% endif %}
     </div>
+  </header>
 
-    <a href="{% url 'product_list' %}" class="btn btn-secondary mt-3">Voltar para a Lista de Produtos</a>
+  <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_18rem]">
+    <section class="surface p-5 sm:p-6">
+      <h2 class="section-title">Informações do produto</h2>
+
+      <dl class="mt-4 grid gap-4 sm:grid-cols-2">
+        <div>
+          <dt class="dt">Categoria</dt>
+          <dd class="dd">
+            {% if perms.categories.view_category %}
+              <a href="{% url 'category_detail' object.category.id %}" class="underline-offset-4 transition-colors hover:text-brand-300 hover:underline">{{ object.category }}</a>
+            {% else %}
+              {{ object.category }}
+            {% endif %}
+          </dd>
+        </div>
+
+        <div>
+          <dt class="dt">Marca</dt>
+          <dd class="dd">
+            {% if perms.brands.view_brand %}
+              <a href="{% url 'brand_detail' object.brand.id %}" class="underline-offset-4 transition-colors hover:text-brand-300 hover:underline">{{ object.brand }}</a>
+            {% else %}
+              {{ object.brand }}
+            {% endif %}
+          </dd>
+        </div>
+
+        <div>
+          <dt class="dt">Número de série</dt>
+          <dd class="dd">{{ object.serie_number|default:"—" }}</dd>
+        </div>
+
+        <div>
+          <dt class="dt">Preço de custo</dt>
+          <dd class="dd tabular-nums">R$ {{ object.cost_price }}</dd>
+        </div>
+
+        <div>
+          <dt class="dt">Preço de venda</dt>
+          <dd class="dd tabular-nums">R$ {{ object.selling_price }}</dd>
+        </div>
+
+        <div>
+          <dt class="dt">Atualizado em</dt>
+          <dd class="dd">{{ object.updated_at|date:"d/m/Y H:i" }}</dd>
+        </div>
+
+        <div class="sm:col-span-2">
+          <dt class="dt">Descrição</dt>
+          <dd class="dd">{{ object.description|default:"—"|linebreaksbr }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <aside class="space-y-4">
+      <div class="surface p-5">
+        <p class="kpi-label">Em estoque</p>
+        <p class="mt-2 text-3xl font-semibold tabular-nums text-slate-50">
+          {{ object.quantity }} <span class="text-sm font-medium text-slate-400">un.</span>
+        </p>
+        <div class="mt-3">
+          {% if object.quantity <= 0 %}
+            <span class="badge badge-rose">Sem estoque</span>
+          {% elif object.quantity < 5 %}
+            <span class="badge badge-amber">Estoque baixo</span>
+          {% else %}
+            <span class="badge badge-brand">Disponível</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="surface p-5">
+        <dl class="space-y-3 text-sm">
+          <div class="flex items-center justify-between gap-3">
+            <dt class="text-slate-400">Cadastrado em</dt>
+            <dd class="text-slate-300">{{ object.created_at|date:"d/m/Y" }}</dd>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <dt class="text-slate-400">ID</dt>
+            <dd class="tabular-nums text-slate-300">#{{ object.id }}</dd>
+          </div>
+        </dl>
+      </div>
+    </aside>
   </div>
+</div>
 {% endblock %}

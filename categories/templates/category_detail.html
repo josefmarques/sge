@@ -1,16 +1,48 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ object.name }} · SGE{% endblock %}
+{% block breadcrumb %}Catálogo / Categorias / Detalhes{% endblock %}
+{% block topbar_title %}{{ object.name }}{% endblock %}
+
 {% block content %}
-  <div class="container mt-4">
-    <h3 class="display-4">Detalhes da Categoria</h3>
+{% url 'category_list' as category_list_url %}
 
-    <div class="card">
-      <div class="card-body">
-        <h3 class="card-title">{{ object.name }}</h3>
-        <p class="card-text">{{ object.description }}</p>
-      </div>
+<div class="mx-auto w-full max-w-3xl space-y-5">
+  <header class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    {% include 'components/_page_header.html' with back_url=category_list_url back_label="Voltar para categorias" eyebrow="Catálogo" title=object.name subtitle="Detalhes da categoria cadastrada." %}
+
+    <div class="flex flex-wrap items-center gap-2">
+      {% if perms.categories.change_category %}
+        <a href="{% url 'category_update' object.id %}" class="btn btn-secondary">
+          <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-pencil"></use></svg>
+          <span>Editar</span>
+        </a>
+      {% endif %}
+      {% if perms.categories.delete_category %}
+        <a href="{% url 'category_delete' object.id %}" class="btn btn-danger-soft">
+          <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-trash"></use></svg>
+          <span>Excluir</span>
+        </a>
+      {% endif %}
     </div>
+  </header>
 
-    <a href="{% url 'category_list' %}" class="btn btn-secondary mt-3">Voltar para a Lista de Categorias</a>
-  </div>
+  <section class="surface p-5 sm:p-6">
+    <h2 class="section-title">Informações</h2>
+    <dl class="mt-4 space-y-4">
+      <div>
+        <dt class="dt">Nome</dt>
+        <dd class="dd">{{ object.name }}</dd>
+      </div>
+      <div>
+        <dt class="dt">Descrição</dt>
+        <dd class="dd">{{ object.description|default:"—"|linebreaksbr }}</dd>
+      </div>
+      <div class="flex flex-wrap gap-x-8 gap-y-2 border-t border-white/[0.06] pt-4 text-xs text-slate-400">
+        <span>Cadastrado em {{ object.created_at|date:"d/m/Y H:i" }}</span>
+        <span>Atualizado em {{ object.updated_at|date:"d/m/Y H:i" }}</span>
+      </div>
+    </dl>
+  </section>
+</div>
 {% endblock %}

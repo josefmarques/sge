@@ -1,20 +1,11 @@
 {% extends 'base.html' %}
 
+{% block title %}Excluir fornecedor · SGE{% endblock %}
+{% block breadcrumb %}Catálogo / Fornecedores / Excluir{% endblock %}
+{% block topbar_title %}Excluir fornecedor{% endblock %}
+
 {% block content %}
-  <div class="container mt-4">
-    <h3 class="display-4">Deletar Fornecedor</h3>
+{% url 'supplier_list' as cancel_url %}
 
-    <div class="card">
-      <div class="card-body">
-        <p class="card-text">Tem certeza de que deseja excluir o fornecedor <strong>{{ object.name }}</strong>?</p>
-
-        <form method="post">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-danger">Deletar</button>
-        </form>
-        
-        <a href="{% url 'supplier_list' %}" class="btn btn-secondary mt-3">Cancelar e Voltar para a Lista de Fornecedores</a>
-      </div>
-    </div>
-  </div>
+{% include 'components/_delete_card.html' with title="Excluir fornecedor" object_label="o fornecedor" object_name=object.name cancel_url=cancel_url warning="Fornecedores vinculados a entradas podem ser protegidos contra exclusão." %}
 {% endblock %}

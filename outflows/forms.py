@@ -9,7 +9,7 @@ class OutflowForm(forms.ModelForm):
         fields = ['product', 'quantity', 'description']
         widgets = {
             'product': forms.Select(attrs={'class': 'form-control'}),
-            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'step': '1'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
         labels = {
@@ -21,6 +21,12 @@ class OutflowForm(forms.ModelForm):
     def clean_quantity(self):
         quantity = self.cleaned_data.get('quantity')
         product = self.cleaned_data.get('product')
+
+        if product is None or quantity is None:
+            return quantity
+
+        if quantity <= 0:
+            raise ValidationError('A quantidade deve ser maior que zero.')
 
         if quantity > product.quantity:
             raise ValidationError(

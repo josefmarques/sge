@@ -2,9 +2,10 @@
   "name": "sge",
   "version": "1.0.0",
   "private": true,
-  "description": "Build de CSS do SGE (tela de login)",
+  "description": "Build do CSS do SGE (login + aplicação)",
   "scripts": {
-    "build:css": "tailwindcss -i ./app/static/css/tailwind-input.css -o ./app/static/css/login.css --minify"
+    "build:css": "tailwindcss -i ./app/static/css/tailwind-input.css -o ./app/static/css/sge.css --minify",
+    "watch:css": "tailwindcss -i ./app/static/css/tailwind-input.css -o ./app/static/css/sge.css --watch"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.17"

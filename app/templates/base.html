@@ -1,37 +1,273 @@
-<!DOCTYPE html>
-<html lang="pt-br" data-bs-theme="dark">
-
+{% load static %}<!DOCTYPE html>
+<html lang="pt-br" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}{% endblock %}</title>
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#05070D">
+  <title>{% block title %}SGE{% endblock %}</title>
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2310b981'/%3E%3Cpath d='M16 6l8 4.5v9L16 24l-8-4.5v-9L16 6z' fill='none' stroke='%2305070d' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{% static 'css/sge.css' %}">
+  {% block extra_head %}{% endblock %}
 </head>
 
-<body>
-  {% include 'components/_header.html' %}
+<body class="app-bg min-h-screen min-h-dvh overflow-x-hidden font-sans text-slate-200 antialiased">
+  {% include 'components/_icon_sprite.html' %}
 
-  <div class="container-fluid">
+  <a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
+
+  <div aria-hidden="true" class="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+    <div class="app-grid absolute inset-0 opacity-40"></div>
+    <div class="absolute -left-32 top-[-10%] h-[26rem] w-[26rem] rounded-full bg-brand-500/10 blur-[140px]"></div>
+    <div class="absolute -right-24 top-1/4 h-[24rem] w-[24rem] rounded-full bg-iris-500/10 blur-[140px]"></div>
+  </div>
+
+  {% if user.is_authenticated %}
+    {% include 'components/_sidebar.html' %}
+    <div id="sidebar-overlay" data-drawer-overlay
+         class="fixed inset-0 z-40 hidden bg-ink-950/70 backdrop-blur-sm lg:hidden"
+         aria-hidden="true"></div>
+  {% endif %}
+
+  <div class="relative z-10 flex min-h-screen min-h-dvh flex-col {% if user.is_authenticated %}lg:pl-72{% endif %}">
+
     {% if user.is_authenticated %}
-      {% include 'components/_sidebar.html' %}
+      <header class="sticky top-0 z-30 border-b border-white/[0.06] bg-ink-950/75 backdrop-blur-xl">
+        <div class="flex h-16 items-center gap-3 px-4 sm:px-6 lg:px-8">
+
+          <button type="button" data-drawer-open aria-controls="sidebar" aria-expanded="false"
+                  class="btn-icon shrink-0 lg:hidden">
+            <svg class="h-5 w-5" aria-hidden="true" focusable="false"><use href="#i-menu"></use></svg>
+            <span class="sr-only">Abrir menu de navegação</span>
+          </button>
+
+          <div class="min-w-0 flex-1">
+            <nav aria-label="Trilha de navegação" class="hidden sm:block">
+              <ol class="flex items-center gap-1.5 text-[11px] text-slate-400">
+                <li><a href="{% url 'home' %}" class="transition-colors hover:text-slate-300">Início</a></li>
+                <li aria-hidden="true" class="text-slate-600">/</li>
+                <li class="truncate text-slate-400" aria-current="page">{% block breadcrumb %}Dashboard{% endblock %}</li>
+              </ol>
+            </nav>
+            <p class="truncate text-sm font-semibold text-slate-100">
+              {% block topbar_title %}Dashboard{% endblock %}
+            </p>
+          </div>
+
+          <div class="flex shrink-0 items-center gap-2">
+            {% block topbar_actions %}{% endblock %}
+
+            <details class="user-menu relative" data-user-menu>
+              <summary class="flex cursor-pointer list-none items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] p-1.5 pr-2 transition-colors hover:border-white/15 hover:bg-white/[0.06] sm:pr-3">
+                <span class="avatar h-8 w-8">{{ user.username|slice:":1"|upper }}</span>
+                <span class="hidden min-w-0 text-left sm:block">
+                  <span class="block max-w-[10rem] truncate text-xs font-semibold text-slate-100">{{ user.get_full_name|default:user.username }}</span>
+                  <span class="block max-w-[10rem] truncate text-[10px] text-slate-400">{{ user.email|default:"Sessão autenticada" }}</span>
+                </span>
+                <svg class="user-menu-chevron h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200" aria-hidden="true" focusable="false"><use href="#i-chevron-down"></use></svg>
+              </summary>
+
+              <div class="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-xl border border-white/10 bg-ink-900/95 shadow-card backdrop-blur-xl">
+                <div class="border-b border-white/[0.06] px-4 py-3">
+                  <p class="truncate text-sm font-medium text-slate-100">{{ user.get_full_name|default:user.username }}</p>
+                  <p class="truncate text-xs text-slate-400">{{ user.email|default:user.username }}</p>
+                </div>
+                <form method="post" action="{% url 'logout' %}" class="p-1.5">
+                  {% csrf_token %}
+                  <button type="submit" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-rose-500/10 hover:text-rose-200">
+                    <svg class="h-4 w-4" aria-hidden="true" focusable="false"><use href="#i-logout"></use></svg>
+                    Sair
+                  </button>
+                </form>
+              </div>
+            </details>
+          </div>
+        </div>
+      </header>
     {% endif %}
 
-      <div class="col py-3">
+    {% include 'components/_messages.html' %}
 
-        <div class="container mt-4">
-          <main>
-            {% block content %}
-            {% endblock %}
-          </main>
-        </div>
-
+    <main id="main-content" tabindex="-1" class="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <div class="mx-auto w-full max-w-[1600px]">
+        {% block content %}{% endblock %}
       </div>
-    </div>
-  </div>
-  {% include 'components/_footer.html' %}
-</body>
+    </main>
 
+    {% include 'components/_footer.html' %}
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ---------------- Drawer mobile ---------------- */
+      var sidebar = document.getElementById('sidebar');
+      var overlay = document.getElementById('sidebar-overlay');
+      var openBtn = document.querySelector('[data-drawer-open]');
+      var mq = window.matchMedia('(min-width: 1024px)');
+      var lastFocus = null;
+      var FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
+
+      function drawerIsOpen() { return overlay && !overlay.classList.contains('hidden'); }
+
+      function openDrawer() {
+        if (!sidebar || !overlay) return;
+        lastFocus = document.activeElement;
+        sidebar.classList.remove('-translate-x-full', 'invisible');
+        sidebar.classList.add('translate-x-0', 'visible');
+        overlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+        if (openBtn) openBtn.setAttribute('aria-expanded', 'true');
+        sidebar.removeAttribute('aria-hidden');
+        requestAnimationFrame(function () {
+          var closeBtn = sidebar.querySelector('[data-drawer-close]');
+          var first = closeBtn || sidebar.querySelector(FOCUSABLE);
+          if (first) first.focus({ preventScroll: true });
+        });
+      }
+
+      function closeDrawer(restoreFocus) {
+        if (!sidebar || !overlay) return;
+        sidebar.classList.add('-translate-x-full', 'invisible');
+        sidebar.classList.remove('translate-x-0', 'visible');
+        overlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+        if (openBtn) openBtn.setAttribute('aria-expanded', 'false');
+        if (!mq.matches) sidebar.setAttribute('aria-hidden', 'true');
+        if (restoreFocus && lastFocus && typeof lastFocus.focus === 'function') {
+          lastFocus.focus({ preventScroll: true });
+        }
+      }
+
+      if (sidebar && overlay && openBtn) {
+        openBtn.addEventListener('click', openDrawer);
+        overlay.addEventListener('click', function () { closeDrawer(true); });
+
+        sidebar.querySelectorAll('[data-drawer-close]').forEach(function (btn) {
+          btn.addEventListener('click', function () { closeDrawer(true); });
+        });
+
+        sidebar.querySelectorAll('a[href]').forEach(function (link) {
+          link.addEventListener('click', function () {
+            if (!mq.matches) closeDrawer(false);
+          });
+        });
+
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && drawerIsOpen()) { closeDrawer(true); return; }
+          if (e.key !== 'Tab' || !drawerIsOpen()) return;
+
+          var items = Array.prototype.filter.call(
+            sidebar.querySelectorAll(FOCUSABLE),
+            function (el) { return el.getClientRects().length > 0; }
+          );
+          if (!items.length) return;
+
+          var first = items[0];
+          var last = items[items.length - 1];
+
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault(); last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault(); first.focus();
+          }
+        });
+
+        function syncDrawer() {
+          if (mq.matches) {
+            sidebar.classList.remove('-translate-x-full', 'invisible');
+            sidebar.classList.add('translate-x-0', 'visible');
+            sidebar.removeAttribute('aria-hidden');
+            overlay.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            if (openBtn) openBtn.setAttribute('aria-expanded', 'false');
+          } else {
+            closeDrawer(false);
+          }
+        }
+
+        if (mq.addEventListener) mq.addEventListener('change', syncDrawer);
+        else if (mq.addListener) mq.addListener(syncDrawer);
+        syncDrawer();
+      }
+
+      /* ---------------- Menu do usuário ---------------- */
+      document.querySelectorAll('[data-user-menu]').forEach(function (menu) {
+        document.addEventListener('click', function (e) {
+          if (!menu.contains(e.target)) menu.removeAttribute('open');
+        });
+        menu.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') {
+            menu.removeAttribute('open');
+            var summary = menu.querySelector('summary');
+            if (summary) summary.focus();
+          }
+        });
+      });
+
+      /* ---------------- Formulários: aria + foco no 1º erro ---------------- */
+      document.querySelectorAll('.field').forEach(function (field) {
+        var control = field.querySelector('input:not([type="hidden"]), select, textarea');
+        if (!control) return;
+
+        var ids = [];
+        var help = field.querySelector('.help');
+        var error = field.querySelector('.field-error');
+
+        if (help && help.id) ids.push(help.id);
+        if (error && error.id) ids.push(error.id);
+
+        if (ids.length) control.setAttribute('aria-describedby', ids.join(' '));
+        if (error) control.setAttribute('aria-invalid', 'true');
+      });
+
+      var firstInvalid = document.querySelector('[aria-invalid="true"]');
+      if (firstInvalid) firstInvalid.focus({ preventScroll: true });
+
+      /* ---------------- Paginação preservando filtros ---------------- */
+      document.querySelectorAll('[data-page-link]').forEach(function (link) {
+        try {
+          var url = new URL(window.location.href);
+          url.searchParams.set('page', link.getAttribute('data-page'));
+          link.setAttribute('href', url.pathname + '?' + url.searchParams.toString());
+        } catch (e) { /* mantém href do servidor */ }
+      });
+
+      /* ---------------- Duplo submit ---------------- */
+      document.querySelectorAll('form').forEach(function (form) {
+        form.addEventListener('submit', function () {
+          var btn = form.querySelector('[data-submit]');
+          if (!btn || btn.disabled) return;
+
+          btn.disabled = true;
+          btn.setAttribute('aria-busy', 'true');
+
+          var label = btn.querySelector('[data-submit-label]');
+          if (label) {
+            if (!label.dataset.original) label.dataset.original = label.textContent;
+            label.textContent = btn.getAttribute('data-submit-busy') || 'Salvando…';
+          }
+        });
+      });
+
+      window.addEventListener('pageshow', function () {
+        document.querySelectorAll('[data-submit][aria-busy="true"]').forEach(function (btn) {
+          btn.disabled = false;
+          btn.removeAttribute('aria-busy');
+          var label = btn.querySelector('[data-submit-label]');
+          if (label && label.dataset.original) label.textContent = label.dataset.original;
+        });
+      });
+    })();
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
 </html>
