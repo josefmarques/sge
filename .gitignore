@@ -2,5 +2,8 @@ venv
 db.sqlite3
 media
 __pycache__/
+node_modules/
+staticfiles/
 .DS_Store
 .env
+.playwright-mcp/

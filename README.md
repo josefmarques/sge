@@ -1,3 +1,13 @@
+read -rsp 'cole a nova chave: ' CONTEXT7_API_KEY &&                                                               
+     printf 'export CONTEXT7_API_KEY=%q\n' "$CONTEXT7_API_KEY" > ~/.config/opencode/                                                    
+     context7.env                                                                                                                       
+     chmod 600 ~/.config/opencode/context7.env                                                                                          
+     unset CONTEXT7_API_KEY
+
+
+
+
+
 # Sistema de Gestão de Estoque (SGE)
 
 Bem-vindo ao Sistema de Gestão de Estoque (SGE), um projeto desenvolvido em Django e Bootstrap 5 para facilitar o gerenciamento de estoque. Este README fornece informações essenciais sobre como configurar e executar o projeto em seu ambiente local.
